@@ -39,10 +39,10 @@ if settings.SHOW_OSS_ANNOUNCEMENT:
 MIT_VALIDATION_ERROR = u'That user does not exist at MIT or is a ' + \
                        u'<a href="https://ist.mit.edu/email-lists">mailing list</a>. ' + \
                        u'If you want to sign up an alias for Zulip, ' + \
-                       u'<a href="mailto:"' + settings.ZULIP_ADMINISTRATOR + '">contact us</a>.'
-WRONG_SUBDOMAIN_ERROR = "You have a Zulip account, but it is not a member of the " + \
+                       u'<a href="mailto:support@zulipchat.com">contact us</a>.'
+WRONG_SUBDOMAIN_ERROR = "Your Zulip account is not a member of the " + \
                         "organization associated with this subdomain.  " + \
-                        "Please contact %s if you're having trouble!" % (settings.ZULIP_ADMINISTRATOR,)
+                        "Please contact %s with any questions!" % (settings.ZULIP_ADMINISTRATOR,)
 
 def get_registration_string(domain):
     # type: (text_type) -> text_type
