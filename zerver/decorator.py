@@ -189,7 +189,9 @@ def validate_api_key(request, role, api_key, is_webhook=False):
     except AttributeError:
         # Deployment objects don't have realms
         pass
-    if not check_subdomain(get_subdomain(request), profile.realm.subdomain):
+    if (not check_subdomain(get_subdomain(request), profile.realm.subdomain)
+            # Hack to prevent problems accessing Tornado services
+            and request.get_host() != "127.0.0.1:9993"):
         raise JsonableError(_("Wrong subdomain"))
 
     return profile
