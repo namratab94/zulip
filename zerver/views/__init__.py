@@ -527,9 +527,14 @@ def finish_google_oauth2(request):
         logging.error('Google oauth2 account email not found: %s' % (body,))
         return HttpResponse(status=400)
     email_address = email['value']
+    return_data = {} # type: Dict[str, bool]
     user_profile = authenticate(username=email_address,
                                 realm_subdomain=get_subdomain(request),
-                                use_dummy_backend=True)
+                                use_dummy_backend=True,
+                                return_data=return_data)
+    if return_data.get('invalid_subdomain'):
+        logging.warning("User attempted to Google login to wrong subdomain %s: %s" % (get_subdomain(request), email_address,))
+        return redirect('/')
     return login_or_register_remote_user(request, email_address, user_profile, full_name)
 
 def login_page(request, **kwargs):
