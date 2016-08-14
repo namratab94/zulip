@@ -192,6 +192,8 @@ def validate_api_key(request, role, api_key, is_webhook=False):
     if (not check_subdomain(get_subdomain(request), profile.realm.subdomain)
             # Hack to prevent problems accessing Tornado services
             and request.get_host() != "127.0.0.1:9993"):
+        logging.warning("User %s attempted to access API on wrong subdomain %s" % (
+            profile.email, get_subdomain(request)))
         raise JsonableError(_("Account is not associated with this subdomain"))
 
     return profile
@@ -218,6 +220,8 @@ def api_key_only_webhook_view(client_name):
             if user_profile.realm.deactivated:
                 raise JsonableError(_("Realm for account has been deactivated"))
             if not check_subdomain(get_subdomain(request), user_profile.realm.subdomain):
+                logging.warning("User %s attempted to access webhook API on wrong subdomain %s" % (
+                    user_profile.email, get_subdomain(request)))
                 raise JsonableError(_("Account is not associated with this subdomain"))
 
             request.user = user_profile
@@ -432,6 +436,8 @@ def authenticate_log_and_execute_json(request, view_func, *args, **kwargs):
     if (not check_subdomain(get_subdomain(request), user_profile.realm.subdomain) and
         # Exclude the SOCKET requests from this filter; they were checked outside
         request.get_host() != "127.0.0.1:9993"):
+        logging.warning("User %s attempted to access JSON API on wrong subdomain %s" % (
+            user_profile.email, get_subdomain(request)))
         raise JsonableError(_("Account is not associated with this subdomain"))
 
     process_client(request, user_profile, True)
