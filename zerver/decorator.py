@@ -160,7 +160,7 @@ def process_client(request, user_profile, is_json_view=False, client_name=None):
     request.client = get_client(client_name)
     update_user_activity(request, user_profile)
 
-def validate_api_key(role, api_key, is_webhook=False):
+def validate_api_key(request, role, api_key, is_webhook=False):
     # type: (text_type, text_type, bool) -> Union[UserProfile, Deployment]
     # Remove whitespace to protect users from trivial errors.
     role, api_key = role.strip(), api_key.strip()
@@ -189,6 +189,9 @@ def validate_api_key(role, api_key, is_webhook=False):
     except AttributeError:
         # Deployment objects don't have realms
         pass
+    if not check_subdomain(get_subdomain(request), profile.realm.subdomain):
+        raise JsonableError(_("Wrong subdomain"))
+
     return profile
 
 # Use this for webhook views that don't get an email passed in.
@@ -212,6 +215,8 @@ def api_key_only_webhook_view(client_name):
                 raise JsonableError(_("Account not active"))
             if user_profile.realm.deactivated:
                 raise JsonableError(_("Realm for account has been deactivated"))
+            if not check_subdomain(get_subdomain(request), user_profile.realm.subdomain):
+                raise JsonableError(_("Wrong subdomain"))
 
             request.user = user_profile
             request._email = user_profile.email
@@ -330,7 +335,7 @@ def authenticated_api_view(is_webhook=False):
                 raise RequestVariableMissingError("api_key")
             elif not api_key:
                 api_key = api_key_legacy
-            user_profile = validate_api_key(email, api_key, is_webhook)
+            user_profile = validate_api_key(request, email, api_key, is_webhook)
             request.user = user_profile
             request._email = user_profile.email
             process_client(request, user_profile)
@@ -367,7 +372,7 @@ def authenticated_rest_api_view(is_webhook=False):
             # Now we try to do authentication or die
             try:
                 # Could be a UserProfile or a Deployment
-                profile = validate_api_key(role, api_key, is_webhook)
+                profile = validate_api_key(request, role, api_key, is_webhook)
             except JsonableError as e:
                 return json_unauthorized(e.error)
             request.user = profile
@@ -422,6 +427,9 @@ def authenticate_log_and_execute_json(request, view_func, *args, **kwargs):
         raise JsonableError(_("Realm for account has been deactivated"))
     if user_profile.is_incoming_webhook:
         raise JsonableError(_("Webhook bots can only access webhooks"))
+    if not check_subdomain(get_subdomain(request), user_profile.realm.subdomain):
+        raise JsonableError(_("Wrong subdomain"))
+
     process_client(request, user_profile, True)
     request._email = user_profile.email
     return view_func(request, user_profile, *args, **kwargs)
