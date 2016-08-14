@@ -429,7 +429,9 @@ def authenticate_log_and_execute_json(request, view_func, *args, **kwargs):
         raise JsonableError(_("Realm for account has been deactivated"))
     if user_profile.is_incoming_webhook:
         raise JsonableError(_("Webhook bots can only access webhooks"))
-    if not check_subdomain(get_subdomain(request), user_profile.realm.subdomain):
+    if (not check_subdomain(get_subdomain(request), user_profile.realm.subdomain) and
+        # Exclude the SOCKET requests from this filter; they were checked outside
+        request.get_host() != "127.0.0.1:9993"):
         raise JsonableError(_("Wrong subdomain"))
 
     process_client(request, user_profile, True)
