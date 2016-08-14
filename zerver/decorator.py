@@ -161,7 +161,7 @@ def process_client(request, user_profile, is_json_view=False, client_name=None):
     update_user_activity(request, user_profile)
 
 def validate_api_key(request, role, api_key, is_webhook=False):
-    # type: (text_type, text_type, bool) -> Union[UserProfile, Deployment]
+    # type: (HttpRequest, text_type, text_type, bool) -> Union[UserProfile, Deployment]
     # Remove whitespace to protect users from trivial errors.
     role, api_key = role.strip(), api_key.strip()
 
