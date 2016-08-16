@@ -85,6 +85,15 @@ function populate_group_from_message_container(group, message_container) {
     group.always_visible_topic_edit = message_container.msg.always_visible_topic_edit;
     group.on_hover_topic_edit = message_container.msg.on_hover_topic_edit;
     group.subject_links = message_container.msg.subject_links;
+
+    var time = new XDate(message_container.msg.timestamp * 1000);
+    var date_element = timerender.render_date(time)[0];
+
+    if (!message_container.print_date) {
+        date_element.className = "hide-date";
+    }
+
+    group.date = date_element.outerHTML;
 }
 
 MessageListView.prototype = {
@@ -149,6 +158,10 @@ MessageListView.prototype = {
         _.each(message_containers, function (message_container) {
             message_container.include_recipient = false;
             message_container.include_footer    = false;
+
+            if (!same_day(prev, message_container)) {
+                message_container.print_date = true;
+            }
 
             if (same_recipient(prev, message_container) && self.collapse_messages &&
                prev.msg.historical === message_container.msg.historical && same_day(prev, message_container)) {
