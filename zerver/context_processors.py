@@ -6,6 +6,7 @@ from django.conf import settings
 import ujson
 from zproject.backends import (password_auth_enabled, dev_auth_enabled,
                                google_auth_enabled, github_auth_enabled)
+from zerver.lib.utils import get_subdomain
 
 def add_settings(request):
     # type: (HttpRequest) -> Dict[str, Any]
@@ -16,12 +17,20 @@ def add_settings(request):
         realm = None
         # TODO: Figure out how to add an assertion that this is not used
         realm_uri = settings.SERVER_URI
+    register_link_disabled = settings.REGISTER_LINK_DISABLED
+    login_link_disabled = settings.LOGIN_LINK_DISABLED
+    about_link_disabled = settings.ABOUT_LINK_DISABLED
+
+    if settings.REALMS_HAVE_SUBDOMAINS and get_subdomain(request) == "":
+        register_link_disabled = True
+        login_link_disabled = True
+        about_link_disabled = True
 
     return {
         'custom_logo_url':           settings.CUSTOM_LOGO_URL,
-        'register_link_disabled':    settings.REGISTER_LINK_DISABLED,
-        'login_link_disabled':       settings.LOGIN_LINK_DISABLED,
-        'about_link_disabled':       settings.ABOUT_LINK_DISABLED,
+        'register_link_disabled':    register_link_disabled,
+        'login_link_disabled':       login_link_disabled,
+        'about_link_disabled':       about_link_disabled,
         'show_oss_announcement':     settings.SHOW_OSS_ANNOUNCEMENT,
         'zulip_admin':               settings.ZULIP_ADMINISTRATOR,
         'terms_of_service':          settings.TERMS_OF_SERVICE,
