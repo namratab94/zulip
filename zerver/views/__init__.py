@@ -230,8 +230,10 @@ def accounts_register(request):
 
         # This logs you in using the ZulipDummyBackend, since honestly nothing
         # more fancy than this is required.
+        return_data = {} # type: Dict[str, bool]
         login(request, authenticate(username=user_profile.email,
                                     realm_subdomain=get_subdomain(request),
+                                    return_data=return_data,
                                     use_dummy_backend=True))
 
         if first_in_realm:
@@ -423,8 +425,10 @@ def remote_user_jwt(request):
         # We do all the authentication we need here (otherwise we'd have to
         # duplicate work), but we need to call authenticate with some backend so
         # that the request.backend attribute gets set.
+        return_data = {} # type: Dict[str, bool]
         user_profile = authenticate(username=email,
                                     realm_subdomain=get_subdomain(request),
+                                    return_data=return_data,
                                     use_dummy_backend=True)
     except (jwt.DecodeError, jwt.ExpiredSignature):
         raise JsonableError(_("Bad JSON web token signature"))
