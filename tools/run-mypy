@@ -115,7 +115,7 @@ else:
 # find all non-excluded files in current directory
 files_dict = cast(Dict[str, List[str]],
                   lister.list_files(targets=args.targets, ftypes=['py', 'pyi'],
-                                    use_shebang=args.scripts_only, modified_only=args.modified,
+                                    use_shebang=True, modified_only=args.modified,
                                     exclude = exclude + ['stubs'], group_by_ftype=True,
                                     extless_only=args.scripts_only))
 pyi_files = set(files_dict['pyi'])
@@ -131,7 +131,7 @@ if six.PY2 and os.path.exists(MYPY_VENV_PATH):
 else:
     mypy_command = "mypy"
 
-extra_args = ["--fast-parser", "--silent-imports", "--check-untyped-defs"]
+extra_args = ["--fast-parser", "--silent-imports", "--check-untyped-defs", "--scripts-are-modules"]
 if py_version == 2:
     extra_args.append("--py2")
 if args.linecoverage_report:
