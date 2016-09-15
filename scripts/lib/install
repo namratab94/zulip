@@ -16,11 +16,16 @@ PUPPET_CLASSES="${PUPPET_CLASSES:-zulip::voyager}"
 VIRTUALENV_NEEDED="${VIRTUALENV_NEEDED:-yes}"
 ZULIP_PATH="$(realpath $(dirname $0)/../..)"
 
-"$ZULIP_PATH"/scripts/lib/setup-apt-repo
+if ! [ -e /usr/bin/realpath ]; then
+    # realpath is in coreutils on Xenial, but not in Trusty
+    REALPATH_PACKAGE=realpath
+fi
 
 apt-get update
 apt-get -y dist-upgrade $APT_OPTIONS
-apt-get install -y puppet git python python-six crudini $ADDITIONAL_PACKAGES
+apt-get install -y puppet git python python-six crudini $REALPATH_PACKAGE $ADDITIONAL_PACKAGES
+
+"$ZULIP_PATH"/scripts/lib/setup-apt-repo
 
 # Create and activate a virtualenv
 if [ "$VIRTUALENV_NEEDED" = "yes" ]; then
