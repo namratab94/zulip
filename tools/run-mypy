@@ -131,7 +131,7 @@ if six.PY2 and os.path.exists(MYPY_VENV_PATH):
 else:
     mypy_command = "mypy"
 
-extra_args = ["--fast-parser", "--silent-imports", "--check-untyped-defs"]
+extra_args = ["--fast-parser", "--silent-imports", "--check-untyped-defs", "-i", "--show-traceback"]
 if py_version == 2:
     extra_args.append("--py2")
 if args.linecoverage_report:
