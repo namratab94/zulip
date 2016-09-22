@@ -516,7 +516,7 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
     def run(self, root):
         # type: (Element) -> None
         # Get all URLs from the blob
-        found_urls = walk_tree(root, lambda e: e.get("href") if e.tag == "a" else None)
+        found_urls = walk_tree(root, lambda e: [e.get("href"), e.text] if e.tag == "a" else None)
 
         # If there are more than 5 URLs in the message, don't do inline previews
         if len(found_urls) == 0 or len(found_urls) > 5:
@@ -524,7 +524,7 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
 
         rendered_tweet_count = 0
 
-        for url in found_urls:
+        for (url, text) in found_urls:
             dropbox_image = self.dropbox_image(url)
             if dropbox_image is not None:
                 class_attr = "message_inline_ref"
@@ -538,7 +538,7 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
                       class_attr=class_attr)
                 continue
             if self.is_image(url):
-                add_a(root, url, url)
+                add_a(root, url, url, title=text)
                 continue
             if get_tweet_id(url) is not None:
                 if rendered_tweet_count >= self.TWITTER_MAX_TO_PREVIEW:
