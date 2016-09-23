@@ -36,6 +36,8 @@ matrix:
 # command to run tests
 script:
   - unset GEM_PATH
+  # Disable Travis CI's built-in NVM installation
+  - mv ~/.nvm ~/.travis-nvm-disabled
   - ./tools/travis/$TEST_SUITE
 sudo: required
 services:
