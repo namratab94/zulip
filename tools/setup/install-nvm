@@ -2,18 +2,20 @@
 set -e
 
 export NVM_DIR=/usr/local/nvm
-
-if ! [ -s "$NVM_DIR/nvm.sh" ]
- then
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | NVM_DIR=/usr/local/nvm bash
+if ! [ -s "$NVM_DIR/nvm.sh" ]; then
+    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
 fi
 
 source $NVM_DIR/nvm.sh
-
 nvm install stable && nvm alias default stable
 
+# Fix messed-up uid=500 and group write bits produced by nvm
+n=$(which node)
+n=${n%/bin/node}
+chown -R root:root "$n"
+chmod -R go-w "$n"
 
-n=$(which node);n=${n%/bin/node}; chmod -R 755 $n/bin/*; sudo cp -r $n/{bin,lib,share} /usr/local
-
-
+# Install node and npm wrappers to /usr/local/bin
+cp "$0/../../scripts/setup/node-wrapper" /usr/local/bin/node
+cp "$0/../../scripts/setup/npm-wrapper" /usr/local/bin/npm
 
