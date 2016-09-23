@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+ZULIP_PATH=$(dirname "$0")
 export NVM_DIR=/usr/local/nvm
 if ! [ -s "$NVM_DIR/nvm.sh" ]; then
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
@@ -16,6 +17,6 @@ chown -R root:root "$n"
 chmod -R go-w "$n"
 
 # Install node and npm wrappers to /usr/local/bin
-cp "$0/../../scripts/setup/node-wrapper" /usr/local/bin/node
-cp "$0/../../scripts/setup/npm-wrapper" /usr/local/bin/npm
+cp "$ZULIP_PATH/../../scripts/setup/node-wrapper" /usr/local/bin/node
+cp "$ZULIP_PATH/../../scripts/setup/npm-wrapper" /usr/local/bin/npm
 
